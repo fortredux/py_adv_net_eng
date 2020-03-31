@@ -58,3 +58,76 @@ In [14]: str(net1)
 Out[14]: 'IPv4Network 8.8.4.0/29'
 
 '''
+
+
+import ipaddress
+
+
+class IPv4Network:
+    def __init__(self, network):
+        self.network = network
+        subnet = ipaddress.ip_network(self.network)
+        self._hosts = [str(host) for host in subnet.hosts()]
+        self.address = str(subnet.network_address)
+        self.mask = int(subnet.prefixlen)
+        self.broadcast = str(subnet.broadcast_address)
+        self.allocated = ()
+
+    def hosts(self):
+        return tuple(self._hosts)
+
+    def allocate(self, ip):
+        if ip in self._hosts:
+            allocated = [i for i in self.allocated]
+            allocated.append(ip)
+            self.allocated = tuple(allocated)
+
+    def unassigned(self):
+        return tuple(set(self._hosts) - set(self.allocated))
+
+    def __len__(self):
+        return len(self._hosts)
+
+    def __iter__(self):
+        return iter(self._hosts)
+
+    def __getitem__(self, index):
+        #print(type(index))
+        if isinstance(index, slice):
+            return tuple(self._hosts[index])
+        elif isinstance(index, int):
+            return self._hosts[index]
+
+    def __contains__(self, item):
+        return item in self._hosts
+
+    def index(self, ip):
+        return self._hosts.index(ip)
+
+    def count(self, ip):
+        return self._hosts.count(ip)
+
+
+if __name__ == '__main__':
+    net1 = IPv4Network('10.1.1.0/29')
+
+    print(net1.allocated)
+    net1.allocate('10.1.1.4')
+    net1.allocate('10.1.1.6')
+    print(net1.allocated)
+    print(net1.unassigned())
+
+    print(len(net1))
+
+    for ip in net1:
+        print(ip, end=" | ")
+    print()
+
+    print(net1[2])
+    print(net1[-1])
+    print(net1[1:4])
+
+    print(net1.index('10.1.1.3'))
+    print(net1.count('10.1.1.3'))
+
+    del net1

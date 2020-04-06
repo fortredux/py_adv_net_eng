@@ -54,3 +54,66 @@ In [7]: nata.password = 'sadf'
 In [8]: nata.password = 'sadfsadfsadf'
 Пароль установлен
 '''
+
+
+'''
+# Написал int вместо init на стеке нашел такую же ошибку. Было: TypeError: User() takes no arguments
+class User:
+    def __init__(self, name):
+        #self.username = self.set_name(name)
+        self._name = name
+
+    @property
+    def set_name(self, name):
+        return self._name
+'''
+
+
+
+class User:
+    def __init__(self, name):
+        self._name = name
+        self._password = None
+
+    def set_name(self, name):
+        return self._name
+
+    @property
+    def username(self):
+        return self._name
+
+    @property
+    def password(self):
+        if not self._password:
+            raise ValueError('Надо установить пароль!')
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        while True:
+            if len(value) < 8:
+                value = input('Пароль слишком короткий. Введите пароль еще раз: ')
+                continue
+            elif self._name in value:
+                value = input('Пароль содержит имя пользователя. Введите пароль еще раз: ')
+                continue
+            else:
+                self._password = value
+                print('Пароль установлен')
+                break
+        return self._password
+
+
+if __name__ == '__main__':
+    nata = User('nata')
+
+    print(nata.username)
+    #nata.username = 'user'
+
+    #print(nata.password)
+    #nata.password = 'sadf'
+
+    nata.password = 'sadfsadfsadf'
+    print(nata.password)
+
+    del nata
